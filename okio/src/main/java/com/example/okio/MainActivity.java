@@ -1,16 +1,16 @@
 package com.example.okio;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.okio.retrofit.GitHubService;
 import com.example.okio.retrofit.Repo;
 
-import java.io.IOException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Jeffery";
     private Button btRetrofit;
+    private Handler mainHandler=new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +35,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void initData() {
         btRetrofit.setOnClickListener(v-> {
-            Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
+            //TODO:添加主线程调度
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "-->"+Thread.currentThread().getName(), Toast.LENGTH_SHORT).show();
+                }
+            });
 
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl("https://api.github.com/")
@@ -47,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 call.enqueue(new Callback<List<Repo>>() {
                     @Override
                     public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
-                        System.out.println("------------onResponse------------size:"+response.body().size());
+                        System.out.println(Thread.currentThread().getName()+"------------onResponse------------size:"+response.body().size());
                     }
 
                     @Override
